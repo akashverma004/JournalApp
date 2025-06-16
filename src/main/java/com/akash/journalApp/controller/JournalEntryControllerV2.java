@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 @RestController
@@ -42,7 +41,7 @@ public class JournalEntryControllerV2 {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("{userName]")
+    @PostMapping("{userName}")
     public ResponseEntity<JournalEntry> addJournals(@RequestBody JournalEntry journal, @PathVariable String userName) {
 
         try {

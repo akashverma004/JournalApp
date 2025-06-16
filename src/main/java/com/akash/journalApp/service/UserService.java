@@ -1,6 +1,5 @@
 package com.akash.journalApp.service;
 
-import com.akash.journalApp.entity.JournalEntry;
 import com.akash.journalApp.entity.User;
 import com.akash.journalApp.repository.UserRepository;
 import lombok.NonNull;
@@ -34,7 +33,7 @@ public class UserService {
     }
 
     public User findByUserName(@NonNull String username) {
-        return userRepository.findByUserName(username);
+        return userRepository.findByUsername(username);
     }
 }
 
