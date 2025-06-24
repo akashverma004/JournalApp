@@ -21,14 +21,14 @@ public class JournalEntryService {
     @Autowired
     private UserService userService;
 
-    // @Transactional
+    @Transactional
     public void saveEntry(JournalEntry journalEntry, String userName) {
         try {
             User user = userService.findByUserName(userName);
             journalEntry.setDate(LocalDateTime.now());
             JournalEntry saved = journalEntryRepository.save(journalEntry);
             user.getJournalEntryList().add(saved);
-            userService.saveEntry(user);    
+            userService.saveUsersEntry(user);
         } catch (Exception e) {
             throw new RuntimeException("Failed to save journal entry: " + e);
         }
@@ -47,11 +47,21 @@ public class JournalEntryService {
         return journalEntryRepository.findById(id);
     }
 
-    public void deleteById(ObjectId id, String userName) {
-        User user = userService.findByUserName(userName);
-        user.getJournalEntryList().removeIf(x -> x.getId().equals(id));
-        userService.saveEntry(user);
-        journalEntryRepository.deleteById(id);
+    @Transactional
+    public boolean deleteById(ObjectId id, String userName) {
+        boolean removed = false;
+        try {
+            User user = userService.findByUserName(userName);
+            removed = user.getJournalEntryList().removeIf(x -> x.getId().equals(id));
+            if (removed) {
+                userService.saveUsersEntry(user);
+                journalEntryRepository.deleteById(id);
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+            throw new RuntimeException("Failed to delete journal entry: " + e);
+        }
+        return removed;
     }
 }
 

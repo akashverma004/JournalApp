@@ -1,38 +1,29 @@
 package com.akash.journalApp.controller;
 
 import com.akash.journalApp.entity.User;
+import com.akash.journalApp.repository.UserRepository;
 import com.akash.journalApp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/user")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAll();
-    }
+    @Autowired
+    private UserRepository userRepository;
 
-    @PostMapping
-    public ResponseEntity<User> addUser(@RequestBody User user) {
-        try {
-            userService.saveEntry(user);
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @PutMapping("/username")
-    public ResponseEntity<?> updateUser(@RequestBody User user, @PathVariable String userName) {
+    @PutMapping
+    public ResponseEntity<?> updateUser(@RequestBody User user) {
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         User oldUser = userService.findByUserName(userName);
 
         if(oldUser != null) {
@@ -41,6 +32,13 @@ public class UserController {
             userService.saveEntry(oldUser);
             return new ResponseEntity<>(HttpStatus.OK);
         }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> deleteUser(@RequestBody User user) {
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        userRepository.deleteByUsername(userName);
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }
