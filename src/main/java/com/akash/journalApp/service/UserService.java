@@ -3,6 +3,8 @@ package com.akash.journalApp.service;
 import com.akash.journalApp.entity.User;
 import com.akash.journalApp.repository.UserRepository;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -13,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class UserService {
 
     @Autowired
@@ -20,10 +23,23 @@ public class UserService {
 
     private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public void saveEntry(User user) {
+    public void saveAdmin(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRoles(List.of("USER"));
+        user.setRoles(List.of("ADMIN, USER"));
         userRepository.save(user);
+    }
+
+    public Boolean saveEntry(User user) {
+        try {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setRoles(List.of("USER"));
+            userRepository.save(user);
+            return true;
+        } catch (Exception e) {
+            log.info("Duplicate user found");
+            return false;
+        }
+
     }
 
     public void saveUsersEntry(User user) {
